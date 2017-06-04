@@ -1,21 +1,33 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import { Image, StyleSheet, View } from "react-native";
+import "./App.css";
+
+// Components
+const Card = ({ children }) => <View style={styles.card}>{children}</View>;
+const Photo = ({ uri }) => {
+  const { innerWidth: width, innerHeight: height } = window;
+  return (
+    <Image source={{ uri }} style={{ width, height }} resizeMode="contain" />
+  );
+};
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
-        </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
+      <Card>
+        <Photo uri="https://avatars0.githubusercontent.com/u/9029281?v=3&s=40" />
+      </Card>
     );
   }
 }
+
+// Styles
+const styles = StyleSheet.create({
+  card: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+});
 
 export default App;
