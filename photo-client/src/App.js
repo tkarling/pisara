@@ -12,6 +12,19 @@ const Photo = ({ uri }) => {
 };
 
 class App extends Component {
+  // resize based on https://stackoverflow.com/questions/19014250/reactjs-rerender-on-browser-resize
+  updateDimensions = () => {
+    this.setState({});
+  };
+  componentWillMount() {
+    this.updateDimensions();
+  }
+  componentDidMount() {
+    window.addEventListener("resize", this.updateDimensions);
+  }
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updateDimensions);
+  }
   render() {
     return (
       <Card>
@@ -27,7 +40,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center"
-  },
+  }
 });
 
 export default App;
