@@ -26,16 +26,18 @@ exports.next = function (args, res, next) {
    * returns Object
    **/
   var file = jpegs[nextIndex]
-  nextIndex = (nextIndex + 1) % jpegs.length
+  nextIndex = Math.floor((Math.random() * jpegs.length)); //(nextIndex + 1) % jpegs.length
+  console.log(nextIndex)
   var dimensions = {
     width: 0,
     height: 0,
     URL: ""
   }
 
+
   gm(file).size(function (err, size) {
     if (!err) {
-      console.log('width', size.width, 'height', size.height, 'URL', file);
+      console.log("Amount", jpegs.length, 'width', size.width, 'height', size.height, 'URL', file);
       dimensions.width = size.width
       dimensions.height = size.height
       dimensions.URL = file
@@ -93,7 +95,7 @@ function fromDir(startPath, filter, callback) {
   };
 };
 
-fromDir('/Users/antti/Documents/DCIM/DCIM/Camera', /\.jpg$/, function (filename) {
+fromDir('/Users/antti/Desktop/iPhotoExport/', /\.jpg$/, function (filename) {
   jpegs.push(filename)
 });
 
