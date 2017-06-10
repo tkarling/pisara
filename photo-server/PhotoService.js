@@ -18,7 +18,7 @@ const mime = {
 var jpegs = []
 var nextIndex = 0
 
-exports.next = function (args, res, next) {
+exports.next = function (req, res) {
   /**
    * Get next photo URL and dimensions from server
    * Gets the photo URL and dimensions of next photo
@@ -34,10 +34,9 @@ exports.next = function (args, res, next) {
     URL: ""
   }
 
-
   gm(file).size(function (err, size) {
     if (!err) {
-      console.log("Amount", jpegs.length, 'width', size.width, 'height', size.height, 'URL', file);
+      console.log("Files:", jpegs.length, 'width:', size.width, 'height:', size.height, 'URL', file);
       dimensions.width = size.width
       dimensions.height = size.height
       dimensions.URL = file
@@ -51,7 +50,7 @@ exports.next = function (args, res, next) {
   });
 }
 
-exports.photo = function (args, res, next) {
+exports.photo = function (req, res) {
   /**
    * Get next photo with given URL from server
    * Gets the photo with given URL
@@ -59,7 +58,7 @@ exports.photo = function (args, res, next) {
    * uRL String 
    * returns Object
    **/
-  var file = args.URL.value;
+  var file = req.headers.url;
   var type = file.slice((file.lastIndexOf(".") - 1 >>> 0) + 2);
   if (type == null || typeof (type) == 'undefined') type = 'text/plain'
   console.log('file', file, 'type', type)
