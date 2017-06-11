@@ -6,12 +6,17 @@ const fs = require('fs');
 const path = require('path');
 const gm = require('gm')
 const bodyParser = require('body-parser');
+const Multer = require('multer');
 const photoService = require('./PhotoService')
 const app = express()
-const fileDir = path.join(__dirname, 'files');
-const uploadDir = path.join(__dirname, 'uploads');
+const fileDir = path.join('/Users/antti/Pictures/Uploads/', 'Saturday-June-10-2017') //path.join(__dirname, 'files');
 
 const SERVER_PORT = 8080;
+
+const multer = Multer({
+  storage: Multer.MemoryStorage,
+  fileSize: 5 * 1024 * 1024
+});
 
 const mime = {
   html: 'text/html',
@@ -26,6 +31,8 @@ const mime = {
 
 var jpegs = []
 var nextIndex = 0
+
+photoService.setRootDir(fileDir)
 
 const initUses = () => {
   app.use(function (req, res, next) {
@@ -50,16 +57,17 @@ app.get('/v2/photo/photo', (req, res) => {
   photoService.photo(req, res)
 })
 
-app.post('/v2/photo/upload', function (req, res) {
-  if (!req.files)
-    return res.status(400).send('No files were uploaded.');
-  res.end()
-});
- 
-app.post('/v2/photo/upload1', function (req, res) {
-  console.log(req)
+app.post('/v2/photo/upload', multer.single('image'), function (req, res, next) {
+  const data = req.body;
+  if (req.file) {
+    let newImage = fileDir + '/' + req.file.originalname
+    fs.writeFile(newImage, req.file.buffer, 'binary', function (err) {
+      if (err) throw err
+      photoService.addImage(newImage)
+    })
+  }
   res.header("Content-Type", "application/json")
-  res.send({"Status": "OK"})
+  res.send({ "Status": "OK" })
 });
 
 var server = app.listen(SERVER_PORT, '0.0.0.0', function () {

@@ -17,6 +17,8 @@ const mime = {
 
 var jpegs = []
 var nextIndex = 0
+var showLastImage = false
+var rootDir = ''
 
 exports.next = function (req, res) {
   /**
@@ -26,12 +28,18 @@ exports.next = function (req, res) {
    * returns Object
    **/
   var file = jpegs[nextIndex]
-  nextIndex = Math.floor((Math.random() * jpegs.length)); //(nextIndex + 1) % jpegs.length
+  nextIndex = showLastImage ? jpegs.length - 1 : Math.floor((Math.random() * jpegs.length));
+  showLastImage = false;
   console.log(nextIndex)
   var dimensions = {
     width: 0,
     height: 0,
     URL: ""
+  }
+  if (jpegs.length == 0) {
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(dimensions))
+    return
   }
 
   gm(file).size(function (err, size) {
@@ -75,6 +83,20 @@ exports.photo = function (req, res) {
   });
 }
 
+exports.addImage = function (fileName) {
+  jpegs.push(fileName)
+  showLastImage = true
+}
+
+//let rootDir = '/Users/antti/Desktop/iPhotoExport/'
+exports.setRootDir = function (rootDirectory) {
+  console.log(rootDirectory)
+  rootDir = rootDirectory
+  fromDir(rootDir, /\.jpg$/, function (fileName) {
+    jpegs.push(fileName)
+  });
+}
+
 function fromDir(startPath, filter, callback) {
   // console.log('Starting from dir ' + startPath + '/');
   if (!fs.existsSync(startPath)) {
@@ -93,8 +115,4 @@ function fromDir(startPath, filter, callback) {
     else if (filter.test(filename)) callback(filename);
   };
 };
-
-fromDir('/Users/antti/Desktop/iPhotoExport/', /\.jpg$/, function (filename) {
-  jpegs.push(filename)
-});
 
