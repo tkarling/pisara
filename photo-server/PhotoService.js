@@ -78,8 +78,8 @@ exports.delete = function (rootDir, req, res) {
    * fileName String 
    **/
   if (!req.params.fileName || req.params.fileName == undefined) return
-  let fileName = rootDir + '/'+ req.params.fileName
-  
+  let fileName = rootDir + '/' + req.params.fileName
+
   const deleteFromJpegs = () => {
     for (var i = jpegs.length - 1; i >= 0; i--) {
       if (jpegs[i] == fileName) {
@@ -104,9 +104,9 @@ exports.delete = function (rootDir, req, res) {
   res.setHeader('Content-Type', 'application/json')
   if (deleteFromJpegs() || deleteFromQueue()) {
     fs.unlinkSync(fileName)
-    res.send({'Status': 'Deleted.'})
+    res.send({ 'Status': 'Deleted.' })
   } else {
-    res.send({'Status' : "Not deleted."})
+    res.send({ 'Status': 'Not deleted.' })
   }
 }
 
