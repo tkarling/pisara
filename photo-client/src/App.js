@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Image } from "react-native";
+import { StyleSheet, View, Text, Image } from "react-native";
 import "./App.css";
 
 // Components
@@ -59,7 +59,7 @@ class App extends Component {
   }
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
-    this.timer = setInterval(this.updatePhoto, 10000);
+    this.timer = setInterval(this.updatePhoto, 20000);
   }
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions);
@@ -67,6 +67,9 @@ class App extends Component {
   }
   render() {
     const { photo } = this.state;
+    if(! photo) {
+      return <Card><Text>No photo yet</Text></Card>
+    }
     return (
       <Card>
         <Photo src={photo} />
