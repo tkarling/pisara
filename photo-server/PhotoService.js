@@ -15,10 +15,9 @@ const mime = {
   js: 'application/javascript'
 };
 
-var jpegs = []
+var jpegs = [],
+    queue = []
 var nextIndex = 0
-var showLastImage = false
-var rootDir = ''
 
 exports.next = function (req, res) {
   /**
@@ -27,35 +26,25 @@ exports.next = function (req, res) {
    *
    * returns Object
    **/
-  var file = jpegs[nextIndex]
-  nextIndex = showLastImage ? jpegs.length - 1 : Math.floor((Math.random() * jpegs.length));
-  showLastImage = false;
-  console.log(nextIndex)
-  var dimensions = {
-    width: 0,
-    height: 0,
-    URL: ""
-  }
-  if (jpegs.length == 0) {
+  if (jpegs.length == 0 && queue.length == 0) {
     res.setHeader('Content-Type', 'application/json')
     res.end(JSON.stringify(dimensions))
     return
   }
 
-  gm(file).size(function (err, size) {
-    if (!err) {
-      console.log("Files:", jpegs.length, 'width:', size.width, 'height:', size.height, 'URL', file);
-      dimensions.width = size.width
-      dimensions.height = size.height
-      dimensions.URL = file
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(dimensions))
-    } else {
-      console.log(err)
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(err))
+  const chooseNextFile = () => {
+    if (queue.length > 0) {
+      jpegs.push(queue.shift())
+      nextIndex = jpegs.length - 1
     }
-  });
+    return jpegs[nextIndex]
+  }
+
+  var fileName = chooseNextFile()
+  nextIndex = Math.floor((Math.random() * jpegs.length));
+  console.log("NextIndex", nextIndex)
+
+  getDimensions(res, fileName)
 }
 
 exports.photo = function (req, res) {
@@ -69,7 +58,6 @@ exports.photo = function (req, res) {
   var file = req.headers.url;
   var type = file.slice((file.lastIndexOf(".") - 1 >>> 0) + 2);
   if (type == null || typeof (type) == 'undefined') type = 'text/plain'
-  console.log('file', file, 'type', type)
   var s = fs.createReadStream(file);
   s.on('open', function () {
     res.setHeader('Content-Type', type);
@@ -84,21 +72,52 @@ exports.photo = function (req, res) {
 }
 
 exports.addImage = function (fileName) {
-  jpegs.push(fileName)
-  showLastImage = true
+  /**
+   * Pushes new image (name) to a specific queue from which it will be moved to 
+   * the jpegs buffer and displayed next.
+   *
+   * fileName String 
+   **/
+  queue.push(fileName)
 }
 
 //let rootDir = '/Users/antti/Desktop/iPhotoExport/'
 exports.setRootDir = function (rootDirectory) {
-  console.log(rootDirectory)
-  rootDir = rootDirectory
-  fromDir(rootDir, /\.jpg$/, function (fileName) {
+  /**
+   * Sets the root directory and scans it and it's subdirectories recursively 
+   * in order to find the images (.jpg) of which filenames will be added to 
+   * an array.
+   *
+   * rootDirectory String 
+   **/
+  console.log("RootDirectory:", rootDirectory)
+  fromDir(rootDirectory, /\.jpg$/, function (fileName) {
     jpegs.push(fileName)
   });
 }
 
-function fromDir(startPath, filter, callback) {
-  // console.log('Starting from dir ' + startPath + '/');
+const getDimensions = (res, fileName) => {
+  var dimensions = {
+    width: 0,
+    height: 0,
+    URL: ""
+  }
+
+  gm(fileName).size(function (err, size) {
+    if (!err) {
+      console.log("Files:", jpegs.length, 'width:', size.width, 'height:', size.height, 'fileName:', fileName);
+      dimensions.width = size.width
+      dimensions.height = size.height
+      dimensions.URL = fileName
+    } else {
+      console.log(err)
+    }
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(dimensions))
+  });
+}
+
+const fromDir = (startPath, filter, callback) => {
   if (!fs.existsSync(startPath)) {
     console.log("no dir ", startPath);
     return;
@@ -110,7 +129,7 @@ function fromDir(startPath, filter, callback) {
     filename = path.resolve(filename)
     var stat = fs.lstatSync(filename);
     if (stat.isDirectory()) {
-      fromDir(filename, filter, callback); //recurse
+      fromDir(filename, filter, callback);
     }
     else if (filter.test(filename)) callback(filename);
   };
