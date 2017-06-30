@@ -9,7 +9,7 @@ const bodyParser = require('body-parser')
 const Multer = require('multer')
 const photoService = require('./PhotoService')
 const app = express()
-const rootDir = path.join('/Users/antti/Pictures/Uploads/', 'Saturday-June-10-2017') //path.join(__dirname, 'files')
+const rootDir = path.join('/Users/antti/Pictures/Uploads/', 'Golf-Party-June-17-2017') //path.join(__dirname, 'files')
 
 const SERVER_PORT = 8080
 
