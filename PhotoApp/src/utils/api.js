@@ -1,3 +1,4 @@
+// @flow
 // const SERVER_URL = "http://10.0.1.7:10010/todo";
 
 // let payload = {
@@ -10,9 +11,9 @@
 
 const SERVER_URL = "http://10.0.1.8:8080/v2/photo/upload";
 
-export function addText(photoUrl) {
+export function addText(photoUrl: string) {
   // console.log("photoUrl", photoUrl);
-  payload.todo = photoUrl;
+  const payload = { todo: photoUrl };
   fetch(SERVER_URL, {
     headers: {
       Accept: "application/json",
@@ -32,14 +33,14 @@ export function addText(photoUrl) {
     });
 }
 
-export function addPhoto(photoUrl) {
+export function addPhoto(photoUrl: string) {
   const file = {
     uri: photoUrl, // e.g. 'file:///path/to/file/image123.jpg'
     name: "myImage" + "-" + Date.now() + ".jpg", // e.g. 'image123.jpg',
     type: "image/jpg" // e.g. 'image/jpg'
   };
 
-  const body = new FormData();
+  const body: any = new FormData();
   body.append("image", file);
 
   // console.log("body", body);
