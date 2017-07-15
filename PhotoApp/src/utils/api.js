@@ -9,7 +9,7 @@
 //   duedate: "2016-11-01T23:15:00.000Z"
 // };
 
-const SERVER_URL = "http://10.0.1.8:8080/v2/photo/upload";
+const SERVER_URL = "http://10.0.1.7:8080/v2/photo/upload";
 
 export function addText(photoUrl: string) {
   // console.log("photoUrl", photoUrl);
@@ -59,7 +59,7 @@ export function addPhoto(photoUrl: string) {
     .then(function(data) {
       // console.log("success", SERVER_URL, data);
     })
-    .catch(function(res) {
-      console.error("error", res);
+    .catch(function(error) {
+      console.error("error uploading pic", error.message);
     });
 }
