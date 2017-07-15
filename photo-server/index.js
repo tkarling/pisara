@@ -9,7 +9,7 @@ const bodyParser = require("body-parser");
 const Multer = require("multer");
 const photoService = require("./PhotoService");
 const app = express();
-const rootDir = path.join("/Users/tuija/Pictures/"); //path.join(__dirname, 'files')
+const rootDir = path.join("/Users/antti/Pictures/"); //path.join(__dirname, 'files')
 
 const SERVER_PORT = 8080;
 

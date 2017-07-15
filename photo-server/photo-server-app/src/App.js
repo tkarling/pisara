@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { StyleSheet, View, Text, Image } from "react-native";
+import QRCode from "qrcode.react";
 import "./App.css";
 
 // Components
@@ -72,15 +73,21 @@ class App extends Component {
     const { photo } = this.state;
     if (!photo) {
       return (
-        <Card>
-          <Text>No photo yet</Text>
-        </Card>
+        <View>
+          <Card>
+            <Text>No photo yet</Text>
+          </Card>
+          <QRCode value="http://facebook.github.io/react/" />
+        </View>
       );
     }
     return (
-      <Card>
-        <Photo src={photo} />
-      </Card>
+      <View>
+        <Card>
+          <Photo src={photo} />
+        </Card>
+        <QRCode value="http://facebook.github.io/react/" />
+      </View>
     );
   }
 }
