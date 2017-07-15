@@ -62,12 +62,16 @@ export default class ImagePickerExample extends React.Component {
     addPhoto("moi");
   };
 
-  _savePhoto = result => {
+  _savePhoto = async result => {
     // console.log(result);
 
     if (!result.cancelled) {
       this.setState({ image: result.uri });
-      addPhoto(result.uri);
+      try {
+        await addPhoto(result.uri);
+      } catch (error) {
+        this.setState({ image: null });
+      }
     }
   };
 
