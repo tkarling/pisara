@@ -8,13 +8,36 @@
 //   author: "aa",
 //   duedate: "2016-11-01T23:15:00.000Z"
 // };
+import { Alert } from "react-native";
+import { setItem, getItem, KEY_SERVER_IP } from "./storage";
 
-const SERVER_URL = "http://10.0.1.8:8080/v2/photo/upload";
+async function init() {
+  const value = await getItem(KEY_SERVER_IP);
+  if (!value) {
+    await setItem(KEY_SERVER_IP, "10.0.1.7");
+    // await setItem(KEY_SERVER_IP, "");
+  }
+  console.log(KEY_SERVER_IP + " at init", value);
+}
+init();
 
-export function addText(photoUrl: string) {
-  // console.log("photoUrl", photoUrl);
+async function getServerUrl() {
+  const serverIP = await getItem(KEY_SERVER_IP);
+  if (serverIP) {
+    return "http://" + serverIP + ":8080/v2/photo/upload";
+  }
+  return null;
+}
+
+export async function addText(photoUrl: string) {
+  const serverUrl = await getServerUrl();
+  if (!serverUrl) {
+    console.error("NO SERVER IP");
+    return;
+  }
+
   const payload = { todo: photoUrl };
-  fetch(SERVER_URL, {
+  fetch(serverUrl, {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json"
@@ -33,7 +56,13 @@ export function addText(photoUrl: string) {
     });
 }
 
-export function addPhoto(photoUrl: string) {
+export async function addPhoto(photoUrl: string) {
+  const serverUrl = await getServerUrl();
+  if (!serverUrl) {
+    Alert.alert("Error Uploading", "No Server IP");
+    return new Promise().reject(new Error("No Server IP"));
+  }
+
   const file = {
     uri: photoUrl, // e.g. 'file:///path/to/file/image123.jpg'
     name: "myImage" + "-" + Date.now() + ".jpg", // e.g. 'image123.jpg',
@@ -43,9 +72,7 @@ export function addPhoto(photoUrl: string) {
   const body: any = new FormData();
   body.append("image", file);
 
-  // console.log("body", body);
-
-  fetch(SERVER_URL, {
+  return fetch(serverUrl, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -58,8 +85,10 @@ export function addPhoto(photoUrl: string) {
     })
     .then(function(data) {
       // console.log("success", SERVER_URL, data);
+      return "OK";
     })
-    .catch(function(res) {
-      console.error("error", res);
+    .catch(function(error) {
+      Alert.alert("Error Uploading", error.message);
+      return error;
     });
 }
